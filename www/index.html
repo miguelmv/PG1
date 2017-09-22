@@ -161,11 +161,17 @@
                                             Scan barcode and retrieve document
                                         </div>
                                     </div>
-                                    <a href="hybrid:ScanAndRetrieve?param1=1&param2=2" class="btn btn-primary">Scan barcode</a>
+                                    <a href="hybrid:ScanAndRetrieve?param1=1&param2=2" class="btn btn-primary">Scan barcode Xamarin (pending)</a>
 									<a href="#" id="openCamera" class="btn btn-primary">Take photo</a>
                                     <br />
 									<span>Photo is at: </span>
                                     <input id="txtResult" name="txtResult" value="" />
+									<hr/>
+									<br/>
+									<a href="#" id="btnScanBarcode" class="btn btn-primary">Scan Barcode PhoneGap</a>
+                                    <br />
+									<span>Barcode value is: </span>
+                                    <input id="txtBarcodeValue" name="txtBarcodeValue" value="" />
             
             
                                 </div>
@@ -237,16 +243,46 @@
         app.initialize();
 		$(function(){
 			$("#openCamera").click(function(){
-				navigator.camera.getPicture(onSuccess, onError, {quality:100, destinationType: Camera.DestinationType.FILE_URI});
+				navigator.camera.getPicture(getPictureOnSuccess, getPictureOnError, {quality:100, destinationType: Camera.DestinationType.FILE_URI});
+			});
+			
+			$("#btnScanBarcode").click(function(){
+			
+				var scanOptions = {
+								  preferFrontCamera : false, // iOS and Android
+								  showFlipCameraButton : true, // iOS and Android
+								  showTorchButton : true, // iOS and Android
+								  torchOn: true, // Android, launch with the torch switched on (if available)
+								  saveHistory: true, // Android, save scan history (default false)
+								  prompt : "Place a barcode inside the scan area", // Android
+								  resultDisplayDuration: 500, // Android, display scanned text for X ms. 0 suppresses it entirely, default 1500
+								  formats : "QR_CODE,DATA_MATRIX,ITF,CODE_39", // default: all but PDF_417 and RSS_EXPANDED
+								  orientation : "landscape", // Android only (portrait|landscape), default unset so it rotates with the device
+								  disableAnimations : true, // iOS
+								  disableSuccessBeep: false // iOS and Android
+								};
+				cordova.plugins.barcodeScanner.scan(barcodeScannerOnSuccess, barcodeScannerOnError, scanOptions);
 			});
 		});
 		
-		function onSuccess(param)
+		function barcodeScannerOnSuccess(result)
+		{
+			alert("We got a barcode\n" +
+							"Result: " + result.text + "\n" +
+							"Format: " + result.format + "\n" +
+							"Cancelled: " + result.cancelled);
+			$("#txtBarcodeValue").val(result.text);
+		}
+		function barcodeScannerOnError(error)
+		{
+			alert("Scanning failed: " + error);
+		}
+		function getPictureOnSuccess(param)
 		{
 			$("#txtResult").val(param);
 		}
 		
-		function onError()
+		function getPictureOnError()
 		{
 		}
     </script>
